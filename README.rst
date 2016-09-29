@@ -40,7 +40,7 @@ Installation
 
 .. code-block:: bash
 
-    pip install genericfuncs
+    pip3 install genericfuncs
 
 
 Advanced

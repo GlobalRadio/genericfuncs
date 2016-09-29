@@ -1,6 +1,3 @@
-from __future__ import unicode_literals
-from __future__ import division
-
 import pytest
 import genericfuncs
 
@@ -21,10 +18,6 @@ def test_correct_genfunc_impl_invoked():
     @genfunc.when(lambda a, b, c: a > b > c)
     def when_a_largerthan_b_largerthan_c(a, b, c):
         return 'a > b > c'
-
-    @genfunc.when(long)
-    def when_all_params_long(a, b, c):
-        return 'all are long'
 
     @genfunc.when(lambda a, b, c: a < b < c)
     def when_a_lessthan_b_lessthan_c(a, b, c):
@@ -48,7 +41,6 @@ def test_correct_genfunc_impl_invoked():
 
     assert genfunc(4, 4, 4) == 'default impl'
     assert genfunc(5, 3, 2) == 'a > b > c'
-    assert genfunc(10L, 20L, 1L) == 'all are long'
     assert genfunc(1, 10, 30) == 'a < b < c'
     assert genfunc(2, 10, 0) == 'one or more is 0'
     assert genfunc(8, 8, 8) == 'a == b == c == 8'
@@ -122,7 +114,7 @@ def test_multiple_predicates():
     def _(c):
         return locals()
 
-    @genfunc.when([lambda b: b == 'paramb', lambda a, c: a == 'parama' and c == 'paramc', basestring])
+    @genfunc.when([lambda b: b == 'paramb', lambda a, c: a == 'parama' and c == 'paramc', str])
     def _(c):
         return locals()
 
@@ -152,17 +144,17 @@ def test_genfunc_call_with_keyword_arguments():
     assert genfunc(1, b=1, c=1) == 'default'
     with pytest.raises(TypeError) as exc_info:
         genfunc(1, 1, 1, c=1)
-    assert 'got multiple values for keyword argument' in str(exc_info)
+    assert 'got multiple values' in str(exc_info)
     with pytest.raises(TypeError) as exc_info:
         genfunc(1, 1, 1, b=1, c=1)
-    assert 'got multiple values for keyword argument' in str(exc_info)
+    assert 'got multiple values' in str(exc_info)
 
     assert genfunc(3, 2, 1) == [3, 2, 1]
     assert genfunc(a=3, b=2, c=1) == [3, 2, 1]
     assert genfunc(3, 2, c=1) == [3, 2, 1]
     with pytest.raises(TypeError) as exc_info:
         genfunc(3, 2, 1, b=2, c=1)
-    assert 'got multiple values for keyword argument' in str(exc_info)
+    assert 'got multiple values' in str(exc_info)
 
 
 def test_invalid_genfunc_calls_raise_error():
@@ -221,7 +213,7 @@ def test_predicates_with_type_precondition_different_types():
     def _(a):
         return 'a.startswith(\'bar\')'
 
-    @genfunc.when(lambda a: a.endswith('foo'), type=basestring)
+    @genfunc.when(lambda a: a.endswith('foo'), type=str)
     def _(a):
         return 'a.endswith(\'foo\')'
 
@@ -250,7 +242,7 @@ def test_type_precondition_as_dict():
     def _(a):
         return 'a > b'
 
-    @genfunc.when(lambda b: b.endswith('bar'), type={'b': basestring})
+    @genfunc.when(lambda b: b.endswith('bar'), type={'b': str})
     def _(a):
         return 'b.endswith(\'bar\')'
 
@@ -311,14 +303,14 @@ def test_dict_as_predicate():
 
     @genfunc.when({
         'a': lambda a: a.startswith('foo')
-    }, type=basestring)
+    }, type=str)
     def _(a, b):
         return 'a starts with foo and all args are strings'
 
     @genfunc.when({
         'a': lambda a: a.startswith('foo')
     }, type={
-        'a': basestring,
+        'a': str,
         'b': float
     })
     def _(a, b):

@@ -1,10 +1,6 @@
-from __future__ import unicode_literals, division, print_function, absolute_import
-
 import collections
 import inspect
 from collections import namedtuple
-import functools
-from itertools import imap
 
 
 class generic(object):
@@ -142,7 +138,7 @@ class generic(object):
 
     def _make_predicate_from_dict(self, predicate_dict):
         def predicate(*args, **kwargs):
-            for arg_name, arg_predicate_source in predicate_dict.iteritems():
+            for arg_name, arg_predicate_source in predicate_dict.items():
                 arg_value = self._base_func.get_arg_value(arg_name, args, kwargs)
 
                 gen = generic(_FunctionInfo(args=[arg_name]))
@@ -158,15 +154,15 @@ class generic(object):
         if isinstance(predicate, type):
             def type_predicate(*args, **kwargs):
                 return all(isinstance(obj, predicate) for obj in args) \
-                       and all(isinstance(obj, predicate) for key, obj in kwargs.iteritems())
+                       and all(isinstance(obj, predicate) for key, obj in kwargs.items())
 
         elif isinstance(predicate, dict):
-            if any((not isinstance(value, (type, collections.Iterable))) for value in predicate.values()):
+            if any((not isinstance(value, (type, collections.Iterable))) for value in list(predicate.values())):
                 raise TypeError('In a dict that maps arguments to expected types, '
                                 'the values must be either types or iterables of types.')
 
             def type_predicate(*args, **kwargs):
-                for arg_name, expected_arg_type in predicate.iteritems():
+                for arg_name, expected_arg_type in predicate.items():
                     arg_value = self._base_func.get_arg_value(arg_name, args, kwargs)
 
                     if isinstance(expected_arg_type, collections.Iterable):
@@ -182,7 +178,7 @@ class generic(object):
         return _PartialFunction(type_predicate, self._base_func, args=self._base_func.args)
 
     def _make_predicate_from_iterable(self, predicates, aggregator=all):
-        partial_func_predicates = map(self.make_predicate, predicates)
+        partial_func_predicates = list(map(self.make_predicate, predicates))
 
         def composed_predicates(*args, **kwargs):
             return aggregator(predicate(*args, **kwargs) for predicate in partial_func_predicates)
@@ -251,7 +247,7 @@ class _PartialFunction(_FunctionInfo):
 
     def __call__(self, *args, **kwargs):
         partial_args = self._find_arg_values(args)
-        partial_kwargs = {k: v for k, v in kwargs.iteritems() if k in self.args}
+        partial_kwargs = {k: v for k, v in kwargs.items() if k in self.args}
         return self._function(*partial_args, **partial_kwargs)
 
     def _find_arg_values(self, input_arg_values):
