@@ -1,5 +1,6 @@
-from setuptools import setup
 from os import path
+
+from setuptools import setup
 
 _here = path.dirname(path.abspath(__file__))
 _readme = open(path.join(_here, 'README.rst')).read()
@@ -8,7 +9,7 @@ setup(
     name='genericfuncs',
     description='Dynamic dispatch over arbitrary predicates',
     long_description=_readme,
-    version='0.2.1pr1',
+    version='0.2.2',
     url='https://github.com/AvivC/genericfuncs',
     author='Aviv Cohn',
     author_email='avivcohn123@yahoo.com',
