@@ -1,6 +1,6 @@
-import collections
 import inspect
 from collections import namedtuple
+from collections.abc import Callable, Iterable
 
 
 class generic(object):
@@ -109,11 +109,11 @@ class generic(object):
         return dec
 
     def make_predicate(self, predicate_source, prepend_typecheck=None):
-        if isinstance(predicate_source, collections.Callable):
+        if isinstance(predicate_source, Callable):
             predicate = self._make_predicate_from_callable(predicate_source)
         elif isinstance(predicate_source, dict):
             predicate = self._make_predicate_from_dict(predicate_source)
-        elif isinstance(predicate_source, collections.Iterable):  # this check must appear after the dict check
+        elif isinstance(predicate_source, Iterable):  # this check must appear after the dict check
             predicate = self._make_predicate_from_iterable(predicate_source)
         else:
             raise TypeError('Input to when() is not a callable, a dict or an iterable of callables.')
@@ -157,7 +157,7 @@ class generic(object):
                        and all(isinstance(obj, predicate) for key, obj in kwargs.items())
 
         elif isinstance(predicate, dict):
-            if any((not isinstance(value, (type, collections.Iterable))) for value in list(predicate.values())):
+            if any((not isinstance(value, (type, Iterable))) for value in list(predicate.values())):
                 raise TypeError('In a dict that maps arguments to expected types, '
                                 'the values must be either types or iterables of types.')
 
@@ -165,7 +165,7 @@ class generic(object):
                 for arg_name, expected_arg_type in predicate.items():
                     arg_value = self._base_func.get_arg_value(arg_name, args, kwargs)
 
-                    if isinstance(expected_arg_type, collections.Iterable):
+                    if isinstance(expected_arg_type, Iterable):
                         expected_arg_type = tuple(expected_arg_type)
 
                     if not isinstance(arg_value, expected_arg_type):
@@ -188,7 +188,7 @@ class generic(object):
     def _prepend_typecheck_to_predicate(self, prepend_typecheck, predicate):
         if isinstance(prepend_typecheck, (type, dict)):
             type_checker = self._make_type_predicate(prepend_typecheck)
-        elif isinstance(prepend_typecheck, collections.Iterable):
+        elif isinstance(prepend_typecheck, Iterable):
             type_checker = self._make_predicate_from_iterable(prepend_typecheck, aggregator=any)
         else:
             raise ValueError('type optional argument to when() has to be a type or an iterable of types. '
